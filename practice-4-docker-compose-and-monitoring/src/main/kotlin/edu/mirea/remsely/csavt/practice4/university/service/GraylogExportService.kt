@@ -10,10 +10,10 @@ import java.util.*
 
 @Service
 class GraylogExportService(
-    @Value("\${graylog.host:localhost}") private val graylogHost: String,
-    @Value("\${graylog.api.port:9000}") private val graylogApiPort: Int,
-    @Value("\${graylog.api.user:admin}") private val graylogUser: String,
-    @Value("\${graylog.api.password:admin}") private val graylogPassword: String
+    @param:Value("\${graylog.host:localhost}") private val graylogHost: String,
+    @param:Value("\${graylog.api.port:9000}") private val graylogApiPort: Int,
+    @param:Value("\${graylog.api.user:admin}") private val graylogUser: String,
+    @param:Value("\${graylog.api.password:admin}") private val graylogPassword: String
 ) {
     private val logger = LoggerFactory.getLogger(GraylogExportService::class.java)
 
