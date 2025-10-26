@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prokopchuk-ikbo-01-22
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-kubernetes
+  template:
+    metadata:
+      labels:
+        app: hello-kubernetes
+    spec:
+      containers:
+        - name: hello-kubernetes
+          image: prokopchuk-ikbo-01-22-obraz:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
