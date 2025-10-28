@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: journal-frontend
+  labels:
+    app: journal
+    layer: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: journal
+      layer: frontend
+  template:
+    metadata:
+      labels:
+        app: journal
+        layer: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: remsely/kbp-sample:1.0.0
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+          env:
+            - name: JOURNAL_ENTRIES
+              valueFrom:
+                configMapKeyRef:
+                  name: journal-config
+                  key: journalEntries
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-passwd
+                  key: passwd
+          volumeMounts:
+            - name: redis-passwd
+              mountPath: /etc/redis-passwd
+              readOnly: true
+      volumes:
+        - name: redis-passwd
+          secret:
+            secretName: redis-passwd

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+spec:
+  serviceName: redis
+  replicas: 3
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:6.2
+          ports:
+            - containerPort: 6379
+          command:
+            - sh
+            - -c
+            - |
+              if [ "$(hostname)" = "redis-0" ]; then
+                redis-server --requirepass $(cat /etc/redis-passwd/passwd)
+              else
+                redis-server --requirepass $(cat /etc/redis-passwd/passwd) --slaveof redis-0.redis 6379 --masterauth \
+                  $(cat /etc/redis-passwd/passwd)
+              fi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: redis-passwd
+              mountPath: /etc/redis-passwd
+              readOnly: true
+      volumes:
+        - name: redis-passwd
+          secret:
+            secretName: redis-passwd
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
