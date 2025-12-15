@@ -1,0 +1,422 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+  labels:
+    app: {{ .Release.Name }}
+data:
+  krakend.json: |
+    {
+      "$schema": "https://www.krakend.io/schema/v2.5/krakend.json",
+      "version": 3,
+      "name": "F1 API Gateway",
+      "timeout": {{ .Values.krakend.timeout | quote }},
+      "cache_ttl": {{ .Values.krakend.cacheTtl | quote }},
+      "output_encoding": "json",
+      "port": {{ .Values.service.port }},
+      "endpoints": [
+        {
+          "endpoint": "/api/auth/register",
+          "method": "POST",
+          "output_encoding": "no-op",
+          "backend": [
+            {
+              "url_pattern": "/api/auth/register",
+              "host": [{{ .Values.backends.authService | quote }}],
+              "method": "POST",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/auth/login",
+          "method": "POST",
+          "output_encoding": "no-op",
+          "backend": [
+            {
+              "url_pattern": "/api/auth/login",
+              "host": [{{ .Values.backends.authService | quote }}],
+              "method": "POST",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/auth/validate",
+          "method": "GET",
+          "output_encoding": "no-op",
+          "input_headers": [
+            "Authorization"],
+          "extra_config": {
+            "auth/validator": {
+              "alg": {{ .Values.jwt.algorithm | quote }},
+              "secret_url": "env://JWT_SECRET",
+              "disable_jwk_security": true
+            }
+          },
+          "backend": [
+            {
+              "url_pattern": "/api/auth/validate",
+              "host": [{{ .Values.backends.authService | quote }}],
+              "method": "GET",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/auth/logout",
+          "method": "POST",
+          "output_encoding": "no-op",
+          "input_headers": [
+            "Authorization"],
+          "extra_config": {
+            "auth/validator": {
+              "alg": {{ .Values.jwt.algorithm | quote }},
+              "secret_url": "env://JWT_SECRET",
+              "disable_jwk_security": true
+            }
+          },
+          "backend": [
+            {
+              "url_pattern": "/api/auth/logout",
+              "host": [{{ .Values.backends.authService | quote }}],
+              "method": "POST",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/drivers",
+          "method": "GET",
+          "output_encoding": "no-op",
+          "input_headers": [
+            "Authorization"],
+          "extra_config": {
+            "auth/validator": {
+              "alg": {{ .Values.jwt.algorithm | quote }},
+              "secret_url": "env://JWT_SECRET",
+              "disable_jwk_security": true
+            }
+          },
+          "backend": [
+            {
+              "url_pattern": "/api/drivers",
+              "host": [{{ .Values.backends.raceService | quote }}],
+              "method": "GET",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/drivers",
+          "method": "POST",
+          "output_encoding": "no-op",
+          "input_headers": [
+            "Authorization",
+            "Content-Type"],
+          "extra_config": {
+            "auth/validator": {
+              "alg": {{ .Values.jwt.algorithm | quote }},
+              "secret_url": "env://JWT_SECRET",
+              "disable_jwk_security": true
+            }
+          },
+          "backend": [
+            {
+              "url_pattern": "/api/drivers",
+              "host": [{{ .Values.backends.raceService | quote }}],
+              "method": "POST",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/drivers/{id}",
+          "method": "GET",
+          "output_encoding": "no-op",
+          "input_headers": [
+            "Authorization"],
+          "extra_config": {
+            "auth/validator": {
+              "alg": {{ .Values.jwt.algorithm | quote }},
+              "secret_url": "env://JWT_SECRET",
+              "disable_jwk_security": true
+            }
+          },
+          "backend": [
+            {
+              "url_pattern": "/api/drivers/{id}",
+              "host": [{{ .Values.backends.raceService | quote }}],
+              "method": "GET",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/drivers/{id}",
+          "method": "DELETE",
+          "output_encoding": "no-op",
+          "input_headers": [
+            "Authorization"],
+          "extra_config": {
+            "auth/validator": {
+              "alg": {{ .Values.jwt.algorithm | quote }},
+              "secret_url": "env://JWT_SECRET",
+              "disable_jwk_security": true
+            }
+          },
+          "backend": [
+            {
+              "url_pattern": "/api/drivers/{id}",
+              "host": [{{ .Values.backends.raceService | quote }}],
+              "method": "DELETE",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/drivers/team/{team}",
+          "method": "GET",
+          "output_encoding": "no-op",
+          "input_headers": [
+            "Authorization"],
+          "extra_config": {
+            "auth/validator": {
+              "alg": {{ .Values.jwt.algorithm | quote }},
+              "secret_url": "env://JWT_SECRET",
+              "disable_jwk_security": true
+            }
+          },
+          "backend": [
+            {
+              "url_pattern": "/api/drivers/team/{team}",
+              "host": [{{ .Values.backends.raceService | quote }}],
+              "method": "GET",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/races",
+          "method": "GET",
+          "output_encoding": "no-op",
+          "input_headers": [
+            "Authorization"],
+          "extra_config": {
+            "auth/validator": {
+              "alg": {{ .Values.jwt.algorithm | quote }},
+              "secret_url": "env://JWT_SECRET",
+              "disable_jwk_security": true
+            }
+          },
+          "backend": [
+            {
+              "url_pattern": "/api/races",
+              "host": [{{ .Values.backends.raceService | quote }}],
+              "method": "GET",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/races",
+          "method": "POST",
+          "output_encoding": "no-op",
+          "input_headers": [
+            "Authorization",
+            "Content-Type"],
+          "extra_config": {
+            "auth/validator": {
+              "alg": {{ .Values.jwt.algorithm | quote }},
+              "secret_url": "env://JWT_SECRET",
+              "disable_jwk_security": true
+            }
+          },
+          "backend": [
+            {
+              "url_pattern": "/api/races",
+              "host": [{{ .Values.backends.raceService | quote }}],
+              "method": "POST",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/races/{id}",
+          "method": "GET",
+          "output_encoding": "no-op",
+          "input_headers": [
+            "Authorization"],
+          "extra_config": {
+            "auth/validator": {
+              "alg": {{ .Values.jwt.algorithm | quote }},
+              "secret_url": "env://JWT_SECRET",
+              "disable_jwk_security": true
+            }
+          },
+          "backend": [
+            {
+              "url_pattern": "/api/races/{id}",
+              "host": [{{ .Values.backends.raceService | quote }}],
+              "method": "GET",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/races/{id}",
+          "method": "DELETE",
+          "output_encoding": "no-op",
+          "input_headers": [
+            "Authorization"],
+          "extra_config": {
+            "auth/validator": {
+              "alg": {{ .Values.jwt.algorithm | quote }},
+              "secret_url": "env://JWT_SECRET",
+              "disable_jwk_security": true
+            }
+          },
+          "backend": [
+            {
+              "url_pattern": "/api/races/{id}",
+              "host": [{{ .Values.backends.raceService | quote }}],
+              "method": "DELETE",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/races/country/{country}",
+          "method": "GET",
+          "output_encoding": "no-op",
+          "input_headers": [
+            "Authorization"],
+          "extra_config": {
+            "auth/validator": {
+              "alg": {{ .Values.jwt.algorithm | quote }},
+              "secret_url": "env://JWT_SECRET",
+              "disable_jwk_security": true
+            }
+          },
+          "backend": [
+            {
+              "url_pattern": "/api/races/country/{country}",
+              "host": [{{ .Values.backends.raceService | quote }}],
+              "method": "GET",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/telemetry",
+          "method": "GET",
+          "output_encoding": "no-op",
+          "input_headers": [
+            "Authorization"
+          ],
+          "extra_config": {
+            "auth/validator": {
+              "alg": {{ .Values.jwt.algorithm | quote }},
+              "secret_url": "env://JWT_SECRET",
+              "disable_jwk_security": true
+            }
+          },
+          "backend": [
+            {
+              "url_pattern": "/api/telemetry",
+              "host": [{{ .Values.backends.telemetryService | quote }}],
+              "method": "GET",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/telemetry/{id}",
+          "method": "GET",
+          "output_encoding": "no-op",
+          "input_headers": [
+            "Authorization"],
+          "extra_config": {
+            "auth/validator": {
+              "alg": {{ .Values.jwt.algorithm | quote }},
+              "secret_url": "env://JWT_SECRET",
+              "disable_jwk_security": true
+            }
+          },
+          "backend": [
+            {
+              "url_pattern": "/api/telemetry/{id}",
+              "host": [{{ .Values.backends.telemetryService | quote }}],
+              "method": "GET",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/telemetry/source/{source}",
+          "method": "GET",
+          "output_encoding": "no-op",
+          "input_headers": [
+            "Authorization"],
+          "extra_config": {
+            "auth/validator": {
+              "alg": {{ .Values.jwt.algorithm | quote }},
+              "secret_url": "env://JWT_SECRET",
+              "disable_jwk_security": true
+            }
+          },
+          "backend": [
+            {
+              "url_pattern": "/api/telemetry/source/{source}",
+              "host": [{{ .Values.backends.telemetryService | quote }}],
+              "method": "GET",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/telemetry/type/{eventType}",
+          "method": "GET",
+          "output_encoding": "no-op",
+          "input_headers": [
+            "Authorization"],
+          "extra_config": {
+            "auth/validator": {
+              "alg": {{ .Values.jwt.algorithm | quote }},
+              "secret_url": "env://JWT_SECRET",
+              "disable_jwk_security": true
+            }
+          },
+          "backend": [
+            {
+              "url_pattern": "/api/telemetry/type/{eventType}",
+              "host": [{{ .Values.backends.telemetryService | quote }}],
+              "method": "GET",
+              "encoding": "no-op"
+            }
+          ]
+        },
+        {
+          "endpoint": "/api/telemetry/stats",
+          "method": "GET",
+          "output_encoding": "no-op",
+          "input_headers": [
+            "Authorization"],
+          "extra_config": {
+            "auth/validator": {
+              "alg": {{ .Values.jwt.algorithm | quote }},
+              "secret_url": "env://JWT_SECRET",
+              "disable_jwk_security": true
+            }
+          },
+          "backend": [
+            {
+              "url_pattern": "/api/telemetry/stats",
+              "host": [{{ .Values.backends.telemetryService | quote }}],
+              "method": "GET",
+              "encoding": "no-op"
+            }
+          ]
+        }
+      ]
+    }

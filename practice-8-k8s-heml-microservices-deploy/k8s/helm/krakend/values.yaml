@@ -1,0 +1,32 @@
+replicaCount: 1
+
+image:
+  repository: devopsfaith/krakend
+  tag: "2.5"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+resources:
+  requests:
+    cpu: "50m"
+    memory: "64Mi"
+  limits:
+    cpu: "200m"
+    memory: "256Mi"
+
+backends:
+  authService: "http://auth-service:8080"
+  raceService: "http://race-service:8081"
+  telemetryService: "http://telemetry-service:8082"
+
+krakend:
+  timeout: "3000ms"
+  cacheTtl: "300s"
+
+# JWT configuration (same secret as auth-service)
+jwt:
+  secret: "my-super-secret-key-for-jwt-token-generation-min-256-bits"
+  algorithm: "HS256"
