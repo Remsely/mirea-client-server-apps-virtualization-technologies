@@ -1,0 +1,38 @@
+# Install: helm install redis bitnami/redis -f values.yaml -n f1-app
+
+architecture: standalone
+
+auth:
+  enabled: false
+
+master:
+  persistence:
+    enabled: true
+    size: 512Mi
+
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+
+replica:
+  replicaCount: 0
+
+metrics:
+  enabled: true
+  resources:
+    requests:
+      cpu: "25m"
+      memory: "32Mi"
+    limits:
+      cpu: "100m"
+      memory: "64Mi"
+
+service:
+  type: ClusterIP
+  ports:
+    redis: 6379
+

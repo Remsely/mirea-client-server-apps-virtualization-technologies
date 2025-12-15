@@ -1,0 +1,44 @@
+# Install: helm install race-db bitnami/postgresql -f values.yaml -n f1-app
+
+auth:
+  database: race_db
+  username: postgres
+  password: postgres
+
+primary:
+  persistence:
+    enabled: true
+    size: 1Gi
+
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+  extendedConfiguration: |
+    max_connections = 100
+    shared_buffers = 128MB
+
+  initdb:
+    scripts:
+      init-monitoring.sql: |
+        CREATE USER postgres_exporter WITH PASSWORD 'exporter_password';
+        GRANT pg_monitor TO postgres_exporter;
+
+metrics:
+  enabled: true
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+    limits:
+      cpu: "100m"
+      memory: "128Mi"
+
+service:
+  type: ClusterIP
+  ports:
+    postgresql: 5432
