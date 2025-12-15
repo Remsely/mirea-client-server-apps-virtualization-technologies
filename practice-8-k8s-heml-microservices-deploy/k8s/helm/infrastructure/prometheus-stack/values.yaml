@@ -1,0 +1,108 @@
+# Prometheus + Grafana Stack (kube-prometheus-stack)
+# Install: helm install monitoring prometheus-community/kube-prometheus-stack -f values.yaml -n monitoring --create-namespace
+
+# Grafana settings
+grafana:
+  enabled: true
+  adminUser: admin
+  adminPassword: admin
+
+  service:
+    type: NodePort
+    nodePort: 30300
+
+  # Default dashboards
+  defaultDashboardsEnabled: true
+  defaultDashboardsTimezone: utc
+
+# Prometheus settings
+prometheus:
+  enabled: true
+
+  service:
+    type: NodePort
+    nodePort: 30090
+
+  prometheusSpec:
+    # Resource limits
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+
+    # Retention
+    retention: 7d
+
+    # Scrape configs for custom services
+    additionalScrapeConfigs:
+      # Spring Boot Actuator endpoints (auth-service)
+      - job_name: 'auth-service'
+        metrics_path: '/actuator/prometheus'
+        scrape_interval: 15s
+        static_configs:
+          - targets: [ 'auth-service.f1-app.svc.cluster.local:8080' ]
+            labels:
+              application: 'auth-service'
+
+      # Spring Boot Actuator endpoints (race-service)
+      - job_name: 'race-service'
+        metrics_path: '/actuator/prometheus'
+        scrape_interval: 15s
+        static_configs:
+          - targets: [ 'race-service.f1-app.svc.cluster.local:8081' ]
+            labels:
+              application: 'race-service'
+
+      # Spring Boot Actuator endpoints (telemetry-service)
+      - job_name: 'telemetry-service'
+        metrics_path: '/actuator/prometheus'
+        scrape_interval: 15s
+        static_configs:
+          - targets: [ 'telemetry-service.f1-app.svc.cluster.local:8082' ]
+            labels:
+              application: 'telemetry-service'
+
+      # PostgreSQL exporters
+      - job_name: 'postgres-auth-db'
+        scrape_interval: 15s
+        static_configs:
+          - targets: [ 'auth-db-postgresql-metrics.f1-app.svc.cluster.local:9187' ]
+            labels:
+              database: 'auth_db'
+
+      - job_name: 'postgres-race-db'
+        scrape_interval: 15s
+        static_configs:
+          - targets: [ 'race-db-postgresql-metrics.f1-app.svc.cluster.local:9187' ]
+            labels:
+              database: 'race_db'
+
+      - job_name: 'postgres-telemetry-db'
+        scrape_interval: 15s
+        static_configs:
+          - targets: [ 'telemetry-db-postgresql-metrics.f1-app.svc.cluster.local:9187' ]
+            labels:
+              database: 'telemetry_db'
+
+      # Redis exporter
+      - job_name: 'redis'
+        scrape_interval: 15s
+        static_configs:
+          - targets: [ 'redis-metrics.f1-app.svc.cluster.local:9121' ]
+            labels:
+              application: 'redis'
+
+# Alertmanager - disabled for demo
+alertmanager:
+  enabled: false
+
+# Node exporter - node metrics
+nodeExporter:
+  enabled: true
+
+# Kube-state-metrics - K8s objects metrics
+kubeStateMetrics:
+  enabled: true
