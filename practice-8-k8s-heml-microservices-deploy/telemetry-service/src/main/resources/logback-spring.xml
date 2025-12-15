@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <springProperty scope="context" name="appName" source="spring.application.name"/>
+
+    <!-- Console Appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeMdcKeyName>http_method</includeMdcKeyName>
+            <includeMdcKeyName>request_uri</includeMdcKeyName>
+            <includeMdcKeyName>client_ip</includeMdcKeyName>
+            <customFields>{"service":"${appName}"}</customFields>
+        </encoder>
+    </appender>
+
+    <!-- GELF Appender for Graylog -->
+    <appender name="GELF" class="de.siegmar.logbackgelf.GelfUdpAppender">
+        <graylogHost>${GRAYLOG_HOST:-localhost}</graylogHost>
+        <graylogPort>${GRAYLOG_PORT:-12201}</graylogPort>
+        <encoder class="de.siegmar.logbackgelf.GelfEncoder">
+            <originHost>${HOSTNAME:-localhost}</originHost>
+            <includeRawMessage>false</includeRawMessage>
+            <includeMarker>true</includeMarker>
+            <includeMdcData>true</includeMdcData>
+            <includeCallerData>false</includeCallerData>
+            <includeRootCauseData>false</includeRootCauseData>
+            <includeLevelName>true</includeLevelName>
+            <shortPatternLayout class="ch.qos.logback.classic.PatternLayout">
+                <pattern>%m%nopex</pattern>
+            </shortPatternLayout>
+            <fullPatternLayout class="ch.qos.logback.classic.PatternLayout">
+                <pattern>%m%n</pattern>
+            </fullPatternLayout>
+            <staticField>app_name:${appName}</staticField>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="GELF"/>
+    </root>
+</configuration>

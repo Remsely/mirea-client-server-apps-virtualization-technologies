@@ -1,20 +1,58 @@
 [versions]
 
 java = "21"
-kotlin = "2.2.21"
-spring-boot = "3.5.8"
+kotlin = "2.1.21"
+spring-boot = "3.5.0"
 spring-dependency-management = "1.1.7"
+jjwt = "0.12.6"
+logstash-logback = "8.0"
+logback-gelf = "6.1.0"
+opentelemetry = "1.44.1"
+opentelemetry-instrumentation = "2.11.0"
 
 #-----------------------------------------------------------------------------------------------------------------------
 
 [libraries]
 
+# Kotlin
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
+
+# Spring Boot Starters
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa" }
+spring-boot-starter-data-redis = { module = "org.springframework.boot:spring-boot-starter-data-redis" }
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
+spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
+spring-kafka = { module = "org.springframework.kafka:spring-kafka" }
+
+# Database
+postgresql = { module = "org.postgresql:postgresql" }
+
+# Security / JWT
+jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
+jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }
+jjwt-jackson = { module = "io.jsonwebtoken:jjwt-jackson", version.ref = "jjwt" }
+
+# Monitoring & Metrics
+micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus" }
+
+# Logging (Graylog GELF)
+logstash-logback-encoder = { module = "net.logstash.logback:logstash-logback-encoder", version.ref = "logstash-logback" }
+logback-gelf = { module = "de.siegmar:logback-gelf", version.ref = "logback-gelf" }
+
+# Tracing (Jaeger via OpenTelemetry)
+micrometer-tracing-bridge-otel = { module = "io.micrometer:micrometer-tracing-bridge-otel" }
+opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "opentelemetry" }
+
+# Testing
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+spring-kafka-test = { module = "org.springframework.kafka:spring-kafka-test" }
 
+# Jackson for Kotlin
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
 
 #-----------------------------------------------------------------------------------------------------------------------
 
@@ -22,6 +60,7 @@ junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher
 
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+kotlin-jpa = { id = "org.jetbrains.kotlin.plugin.jpa", version.ref = "kotlin" }
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
 spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
 
@@ -29,3 +68,21 @@ spring-dependency-management = { id = "io.spring.dependency-management", version
 
 [bundles]
 
+# Common dependencies for all services
+common = [
+    "kotlin-reflect",
+    "spring-boot-starter-web",
+    "spring-boot-starter-actuator",
+    "micrometer-registry-prometheus",
+    "logstash-logback-encoder",
+    "logback-gelf",
+    "micrometer-tracing-bridge-otel",
+    "opentelemetry-exporter-otlp",
+    "jackson-module-kotlin"
+]
+
+# JWT dependencies
+jwt = ["jjwt-api", "jjwt-impl", "jjwt-jackson"]
+
+# Testing
+testing = ["spring-boot-starter-test", "kotlin-test-junit5"]

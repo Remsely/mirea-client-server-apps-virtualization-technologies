@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.kotlin.jpa)
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spring.dependency.management)
 }
@@ -7,10 +8,16 @@ plugins {
 description = "race-service"
 
 dependencies {
-    implementation(libs.spring.boot.starter)
-    implementation(libs.kotlin.reflect)
-    testImplementation(libs.spring.boot.starter.test)
-    testImplementation(libs.kotlin.test.junit5)
+    implementation(libs.bundles.common)
+
+    implementation(libs.spring.boot.starter.data.jpa)
+    implementation(libs.spring.boot.starter.validation)
+    runtimeOnly(libs.postgresql)
+
+    implementation(libs.spring.kafka)
+
+    testImplementation(libs.bundles.testing)
+    testImplementation(libs.spring.kafka.test)
     testRuntimeOnly(libs.junit.platform.launcher)
 }
 

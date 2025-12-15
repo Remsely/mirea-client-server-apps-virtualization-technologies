@@ -1,4 +1,4 @@
-package edu.mirea.remsely.csavt.practice8.raceservice
+package edu.mirea.remsely.csavt.practice8.telemetryservice
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
