@@ -14,30 +14,38 @@
         </encoder>
     </appender>
 
-    <!-- GELF Appender for Graylog -->
-    <appender name="GELF" class="de.siegmar.logbackgelf.GelfUdpAppender">
-        <graylogHost>${GRAYLOG_HOST:-localhost}</graylogHost>
-        <graylogPort>${GRAYLOG_PORT:-12201}</graylogPort>
-        <encoder class="de.siegmar.logbackgelf.GelfEncoder">
-            <originHost>${HOSTNAME:-localhost}</originHost>
-            <includeRawMessage>false</includeRawMessage>
-            <includeMarker>true</includeMarker>
-            <includeMdcData>true</includeMdcData>
-            <includeCallerData>false</includeCallerData>
-            <includeRootCauseData>false</includeRootCauseData>
-            <includeLevelName>true</includeLevelName>
-            <shortPatternLayout class="ch.qos.logback.classic.PatternLayout">
-                <pattern>%m%nopex</pattern>
-            </shortPatternLayout>
-            <fullPatternLayout class="ch.qos.logback.classic.PatternLayout">
-                <pattern>%m%n</pattern>
-            </fullPatternLayout>
-            <staticField>app_name:${appName}</staticField>
-        </encoder>
-    </appender>
+    <!-- GELF Appender for Graylog (conditional) -->
+    <springProfile name="graylog">
+        <appender name="GELF" class="de.siegmar.logbackgelf.GelfUdpAppender">
+            <graylogHost>${GRAYLOG_HOST:-localhost}</graylogHost>
+            <graylogPort>${GRAYLOG_PORT:-12201}</graylogPort>
+            <encoder class="de.siegmar.logbackgelf.GelfEncoder">
+                <originHost>${HOSTNAME:-localhost}</originHost>
+                <includeRawMessage>false</includeRawMessage>
+                <includeMarker>true</includeMarker>
+                <includeMdcData>true</includeMdcData>
+                <includeCallerData>false</includeCallerData>
+                <includeRootCauseData>false</includeRootCauseData>
+                <includeLevelName>true</includeLevelName>
+                <shortPatternLayout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>%m%nopex</pattern>
+                </shortPatternLayout>
+                <fullPatternLayout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>%m%n</pattern>
+                </fullPatternLayout>
+                <staticField>app_name:${appName}</staticField>
+            </encoder>
+        </appender>
 
-    <root level="INFO">
-        <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="GELF"/>
-    </root>
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="GELF"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="!graylog">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
 </configuration>

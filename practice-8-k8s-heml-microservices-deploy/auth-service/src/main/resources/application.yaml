@@ -45,6 +45,7 @@ management:
     readinessState:
       enabled: true
   tracing:
+    enabled: ${TRACING_ENABLED:false}
     sampling:
       probability: 1.0
   otlp:

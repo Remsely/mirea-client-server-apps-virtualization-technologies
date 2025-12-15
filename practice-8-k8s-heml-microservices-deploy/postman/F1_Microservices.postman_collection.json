@@ -1,0 +1,708 @@
+{
+  "info": {
+    "_postman_id": "f1-microservices-collection",
+    "name": "F1 Microservices",
+    "description": "Collection for testing F1 Auth, Race, and Telemetry services",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "auth_url",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "race_url",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "telemetry_url",
+      "value": "http://localhost:8082"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Auth Service",
+      "item": [
+        {
+          "name": "1.1 Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_url}}/actuator/health",
+              "host": [
+                "{{auth_url}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "1.2 Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"test123\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/auth/register",
+              "host": [
+                "{{auth_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "1.3 Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"test123\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/auth/login",
+              "host": [
+                "{{auth_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "1.4 Validate Token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_url}}/api/auth/validate",
+              "host": [
+                "{{auth_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "validate"
+              ]
+            }
+          }
+        },
+        {
+          "name": "1.5 Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_url}}/api/auth/logout",
+              "host": [
+                "{{auth_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "1.6 Prometheus Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_url}}/actuator/prometheus",
+              "host": [
+                "{{auth_url}}"
+              ],
+              "path": [
+                "actuator",
+                "prometheus"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Race Service - Drivers",
+      "item": [
+        {
+          "name": "2.1 Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{race_url}}/actuator/health",
+              "host": [
+                "{{race_url}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.2 Create Driver - Verstappen",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Max Verstappen\",\n    \"team\": \"Red Bull Racing\",\n    \"number\": 1\n}"
+            },
+            "url": {
+              "raw": "{{race_url}}/api/drivers",
+              "host": [
+                "{{race_url}}"
+              ],
+              "path": [
+                "api",
+                "drivers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.3 Create Driver - Hamilton",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Lewis Hamilton\",\n    \"team\": \"Ferrari\",\n    \"number\": 44\n}"
+            },
+            "url": {
+              "raw": "{{race_url}}/api/drivers",
+              "host": [
+                "{{race_url}}"
+              ],
+              "path": [
+                "api",
+                "drivers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.4 Create Driver - Leclerc",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Charles Leclerc\",\n    \"team\": \"Ferrari\",\n    \"number\": 16\n}"
+            },
+            "url": {
+              "raw": "{{race_url}}/api/drivers",
+              "host": [
+                "{{race_url}}"
+              ],
+              "path": [
+                "api",
+                "drivers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.5 Get All Drivers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{race_url}}/api/drivers",
+              "host": [
+                "{{race_url}}"
+              ],
+              "path": [
+                "api",
+                "drivers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.6 Get Driver by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{race_url}}/api/drivers/1",
+              "host": [
+                "{{race_url}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.7 Get Drivers by Team",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{race_url}}/api/drivers/team/Ferrari",
+              "host": [
+                "{{race_url}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "team",
+                "Ferrari"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.8 Delete Driver",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{race_url}}/api/drivers/1",
+              "host": [
+                "{{race_url}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Race Service - Races",
+      "item": [
+        {
+          "name": "3.1 Create Race - Monaco",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Monaco Grand Prix\",\n    \"circuit\": \"Circuit de Monaco\",\n    \"date\": \"2025-05-25\",\n    \"country\": \"Monaco\"\n}"
+            },
+            "url": {
+              "raw": "{{race_url}}/api/races",
+              "host": [
+                "{{race_url}}"
+              ],
+              "path": [
+                "api",
+                "races"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.2 Create Race - Italy",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Italian Grand Prix\",\n    \"circuit\": \"Monza\",\n    \"date\": \"2025-09-07\",\n    \"country\": \"Italy\"\n}"
+            },
+            "url": {
+              "raw": "{{race_url}}/api/races",
+              "host": [
+                "{{race_url}}"
+              ],
+              "path": [
+                "api",
+                "races"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.3 Create Race - UK",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"British Grand Prix\",\n    \"circuit\": \"Silverstone\",\n    \"date\": \"2025-07-06\",\n    \"country\": \"United Kingdom\"\n}"
+            },
+            "url": {
+              "raw": "{{race_url}}/api/races",
+              "host": [
+                "{{race_url}}"
+              ],
+              "path": [
+                "api",
+                "races"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.4 Get All Races",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{race_url}}/api/races",
+              "host": [
+                "{{race_url}}"
+              ],
+              "path": [
+                "api",
+                "races"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.5 Get Race by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{race_url}}/api/races/1",
+              "host": [
+                "{{race_url}}"
+              ],
+              "path": [
+                "api",
+                "races",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.6 Get Races by Country",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{race_url}}/api/races/country/Italy",
+              "host": [
+                "{{race_url}}"
+              ],
+              "path": [
+                "api",
+                "races",
+                "country",
+                "Italy"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.7 Delete Race",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{race_url}}/api/races/1",
+              "host": [
+                "{{race_url}}"
+              ],
+              "path": [
+                "api",
+                "races",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.8 Prometheus Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{race_url}}/actuator/prometheus",
+              "host": [
+                "{{race_url}}"
+              ],
+              "path": [
+                "actuator",
+                "prometheus"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Telemetry Service",
+      "item": [
+        {
+          "name": "4.1 Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{telemetry_url}}/actuator/health",
+              "host": [
+                "{{telemetry_url}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "4.2 Get All Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{telemetry_url}}/api/telemetry",
+              "host": [
+                "{{telemetry_url}}"
+              ],
+              "path": [
+                "api",
+                "telemetry"
+              ]
+            }
+          }
+        },
+        {
+          "name": "4.3 Get Event by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{telemetry_url}}/api/telemetry/1",
+              "host": [
+                "{{telemetry_url}}"
+              ],
+              "path": [
+                "api",
+                "telemetry",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "4.4 Get Events by Source - race",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{telemetry_url}}/api/telemetry/source/race-service",
+              "host": [
+                "{{telemetry_url}}"
+              ],
+              "path": [
+                "api",
+                "telemetry",
+                "source",
+                "race-service"
+              ]
+            }
+          }
+        },
+        {
+          "name": "4.5 Get Events by Source - driver",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{telemetry_url}}/api/telemetry/source/driver-service",
+              "host": [
+                "{{telemetry_url}}"
+              ],
+              "path": [
+                "api",
+                "telemetry",
+                "source",
+                "driver-service"
+              ]
+            }
+          }
+        },
+        {
+          "name": "4.6 Get Events by Type - DRIVER_CREATED",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{telemetry_url}}/api/telemetry/type/DRIVER_CREATED",
+              "host": [
+                "{{telemetry_url}}"
+              ],
+              "path": [
+                "api",
+                "telemetry",
+                "type",
+                "DRIVER_CREATED"
+              ]
+            }
+          }
+        },
+        {
+          "name": "4.7 Get Events by Type - RACE_CREATED",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{telemetry_url}}/api/telemetry/type/RACE_CREATED",
+              "host": [
+                "{{telemetry_url}}"
+              ],
+              "path": [
+                "api",
+                "telemetry",
+                "type",
+                "RACE_CREATED"
+              ]
+            }
+          }
+        },
+        {
+          "name": "4.8 Get Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{telemetry_url}}/api/telemetry/stats",
+              "host": [
+                "{{telemetry_url}}"
+              ],
+              "path": [
+                "api",
+                "telemetry",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "4.9 Prometheus Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{telemetry_url}}/actuator/prometheus",
+              "host": [
+                "{{telemetry_url}}"
+              ],
+              "path": [
+                "actuator",
+                "prometheus"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+
