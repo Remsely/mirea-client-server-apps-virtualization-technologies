@@ -4,10 +4,14 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
 class RequestLoggingFilter : OncePerRequestFilter() {
 
     private val log = LoggerFactory.getLogger(RequestLoggingFilter::class.java)
@@ -19,17 +23,19 @@ class RequestLoggingFilter : OncePerRequestFilter() {
     ) {
         val method = request.method
         val uri = request.requestURI
-        val queryString = request.queryString?.let { "?$it" } ?: ""
         val clientIp = getClientIp(request)
 
-        log.info("HTTP Request: method={}, url={}{}, clientIp={}", method, uri, queryString, clientIp)
+        MDC.put("http_method", method)
+        MDC.put("request_uri", uri)
+        MDC.put("client_ip", clientIp)
 
-        filterChain.doFilter(request, response)
-
-        log.info(
-            "HTTP Response: method={}, url={}{}, status={}, clientIp={}",
-            method, uri, queryString, response.status, clientIp
-        )
+        try {
+            log.info("Incoming request: {} {} from {}", method, uri, clientIp)
+            filterChain.doFilter(request, response)
+            log.info("Completed request: {} {} - Status: {}", method, uri, response.status)
+        } finally {
+            MDC.clear()
+        }
     }
 
     private fun getClientIp(request: HttpServletRequest): String {
