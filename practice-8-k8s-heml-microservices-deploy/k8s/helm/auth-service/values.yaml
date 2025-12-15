@@ -1,0 +1,68 @@
+replicaCount: 1
+
+image:
+  repository: auth-service
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 60
+
+spring:
+  profiles: graylog
+
+database:
+  host: auth-db
+  port: "5432"
+  name: auth_db
+  username: postgres
+
+redis:
+  host: redis
+  port: "6379"
+
+jwt:
+  expirationMs: "86400000"
+
+secrets:
+  dbPassword: postgres
+  jwtSecret: my-super-secret-key-for-jwt-token-generation-min-256-bits
+  redisPassword: ""
+
+graylog:
+  host: graylog
+  port: "12201"
+
+tracing:
+  enabled: "true"
+  endpoint: http://jaeger:4318/v1/traces
+
+probes:
+  liveness:
+    path: /actuator/health/liveness
+    initialDelaySeconds: 60
+    periodSeconds: 10
+  readiness:
+    path: /actuator/health/readiness
+    initialDelaySeconds: 30
+    periodSeconds: 5
+  startup:
+    path: /actuator/health
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    failureThreshold: 30

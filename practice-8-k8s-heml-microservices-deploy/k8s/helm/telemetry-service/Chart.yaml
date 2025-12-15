@@ -1,0 +1,6 @@
+apiVersion: v2
+name: telemetry-service
+description: F1 Telemetry Service - consumes Kafka events and stores telemetry data
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
