@@ -13,12 +13,14 @@ data:
       "timeout": {{ .Values.krakend.timeout | quote }},
       "cache_ttl": {{ .Values.krakend.cacheTtl | quote }},
       "output_encoding": "json",
-      "port": {{ .Values.service.port }},
+      "port": 8080,
       "endpoints": [
         {
           "endpoint": "/api/auth/register",
           "method": "POST",
           "output_encoding": "no-op",
+          "input_headers": [
+            "Content-Type"],
           "backend": [
             {
               "url_pattern": "/api/auth/register",
@@ -32,6 +34,9 @@ data:
           "endpoint": "/api/auth/login",
           "method": "POST",
           "output_encoding": "no-op",
+          "input_headers": [
+            "Content-Type"
+          ],
           "backend": [
             {
               "url_pattern": "/api/auth/login",
@@ -47,13 +52,6 @@ data:
           "output_encoding": "no-op",
           "input_headers": [
             "Authorization"],
-          "extra_config": {
-            "auth/validator": {
-              "alg": {{ .Values.jwt.algorithm | quote }},
-              "secret_url": "env://JWT_SECRET",
-              "disable_jwk_security": true
-            }
-          },
           "backend": [
             {
               "url_pattern": "/api/auth/validate",
@@ -69,13 +67,6 @@ data:
           "output_encoding": "no-op",
           "input_headers": [
             "Authorization"],
-          "extra_config": {
-            "auth/validator": {
-              "alg": {{ .Values.jwt.algorithm | quote }},
-              "secret_url": "env://JWT_SECRET",
-              "disable_jwk_security": true
-            }
-          },
           "backend": [
             {
               "url_pattern": "/api/auth/logout",
@@ -91,13 +82,6 @@ data:
           "output_encoding": "no-op",
           "input_headers": [
             "Authorization"],
-          "extra_config": {
-            "auth/validator": {
-              "alg": {{ .Values.jwt.algorithm | quote }},
-              "secret_url": "env://JWT_SECRET",
-              "disable_jwk_security": true
-            }
-          },
           "backend": [
             {
               "url_pattern": "/api/drivers",
@@ -114,13 +98,6 @@ data:
           "input_headers": [
             "Authorization",
             "Content-Type"],
-          "extra_config": {
-            "auth/validator": {
-              "alg": {{ .Values.jwt.algorithm | quote }},
-              "secret_url": "env://JWT_SECRET",
-              "disable_jwk_security": true
-            }
-          },
           "backend": [
             {
               "url_pattern": "/api/drivers",
@@ -136,13 +113,6 @@ data:
           "output_encoding": "no-op",
           "input_headers": [
             "Authorization"],
-          "extra_config": {
-            "auth/validator": {
-              "alg": {{ .Values.jwt.algorithm | quote }},
-              "secret_url": "env://JWT_SECRET",
-              "disable_jwk_security": true
-            }
-          },
           "backend": [
             {
               "url_pattern": "/api/drivers/{id}",
@@ -158,13 +128,6 @@ data:
           "output_encoding": "no-op",
           "input_headers": [
             "Authorization"],
-          "extra_config": {
-            "auth/validator": {
-              "alg": {{ .Values.jwt.algorithm | quote }},
-              "secret_url": "env://JWT_SECRET",
-              "disable_jwk_security": true
-            }
-          },
           "backend": [
             {
               "url_pattern": "/api/drivers/{id}",
@@ -180,13 +143,6 @@ data:
           "output_encoding": "no-op",
           "input_headers": [
             "Authorization"],
-          "extra_config": {
-            "auth/validator": {
-              "alg": {{ .Values.jwt.algorithm | quote }},
-              "secret_url": "env://JWT_SECRET",
-              "disable_jwk_security": true
-            }
-          },
           "backend": [
             {
               "url_pattern": "/api/drivers/team/{team}",
@@ -202,13 +158,6 @@ data:
           "output_encoding": "no-op",
           "input_headers": [
             "Authorization"],
-          "extra_config": {
-            "auth/validator": {
-              "alg": {{ .Values.jwt.algorithm | quote }},
-              "secret_url": "env://JWT_SECRET",
-              "disable_jwk_security": true
-            }
-          },
           "backend": [
             {
               "url_pattern": "/api/races",
@@ -225,13 +174,6 @@ data:
           "input_headers": [
             "Authorization",
             "Content-Type"],
-          "extra_config": {
-            "auth/validator": {
-              "alg": {{ .Values.jwt.algorithm | quote }},
-              "secret_url": "env://JWT_SECRET",
-              "disable_jwk_security": true
-            }
-          },
           "backend": [
             {
               "url_pattern": "/api/races",
@@ -247,13 +189,6 @@ data:
           "output_encoding": "no-op",
           "input_headers": [
             "Authorization"],
-          "extra_config": {
-            "auth/validator": {
-              "alg": {{ .Values.jwt.algorithm | quote }},
-              "secret_url": "env://JWT_SECRET",
-              "disable_jwk_security": true
-            }
-          },
           "backend": [
             {
               "url_pattern": "/api/races/{id}",
@@ -269,13 +204,6 @@ data:
           "output_encoding": "no-op",
           "input_headers": [
             "Authorization"],
-          "extra_config": {
-            "auth/validator": {
-              "alg": {{ .Values.jwt.algorithm | quote }},
-              "secret_url": "env://JWT_SECRET",
-              "disable_jwk_security": true
-            }
-          },
           "backend": [
             {
               "url_pattern": "/api/races/{id}",
@@ -291,13 +219,6 @@ data:
           "output_encoding": "no-op",
           "input_headers": [
             "Authorization"],
-          "extra_config": {
-            "auth/validator": {
-              "alg": {{ .Values.jwt.algorithm | quote }},
-              "secret_url": "env://JWT_SECRET",
-              "disable_jwk_security": true
-            }
-          },
           "backend": [
             {
               "url_pattern": "/api/races/country/{country}",
@@ -312,15 +233,7 @@ data:
           "method": "GET",
           "output_encoding": "no-op",
           "input_headers": [
-            "Authorization"
-          ],
-          "extra_config": {
-            "auth/validator": {
-              "alg": {{ .Values.jwt.algorithm | quote }},
-              "secret_url": "env://JWT_SECRET",
-              "disable_jwk_security": true
-            }
-          },
+            "Authorization"],
           "backend": [
             {
               "url_pattern": "/api/telemetry",
@@ -336,13 +249,6 @@ data:
           "output_encoding": "no-op",
           "input_headers": [
             "Authorization"],
-          "extra_config": {
-            "auth/validator": {
-              "alg": {{ .Values.jwt.algorithm | quote }},
-              "secret_url": "env://JWT_SECRET",
-              "disable_jwk_security": true
-            }
-          },
           "backend": [
             {
               "url_pattern": "/api/telemetry/{id}",
@@ -358,13 +264,6 @@ data:
           "output_encoding": "no-op",
           "input_headers": [
             "Authorization"],
-          "extra_config": {
-            "auth/validator": {
-              "alg": {{ .Values.jwt.algorithm | quote }},
-              "secret_url": "env://JWT_SECRET",
-              "disable_jwk_security": true
-            }
-          },
           "backend": [
             {
               "url_pattern": "/api/telemetry/source/{source}",
@@ -380,13 +279,6 @@ data:
           "output_encoding": "no-op",
           "input_headers": [
             "Authorization"],
-          "extra_config": {
-            "auth/validator": {
-              "alg": {{ .Values.jwt.algorithm | quote }},
-              "secret_url": "env://JWT_SECRET",
-              "disable_jwk_security": true
-            }
-          },
           "backend": [
             {
               "url_pattern": "/api/telemetry/type/{eventType}",
@@ -402,13 +294,6 @@ data:
           "output_encoding": "no-op",
           "input_headers": [
             "Authorization"],
-          "extra_config": {
-            "auth/validator": {
-              "alg": {{ .Values.jwt.algorithm | quote }},
-              "secret_url": "env://JWT_SECRET",
-              "disable_jwk_security": true
-            }
-          },
           "backend": [
             {
               "url_pattern": "/api/telemetry/stats",

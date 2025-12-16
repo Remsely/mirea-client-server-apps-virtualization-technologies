@@ -16,6 +16,10 @@ dependencies {
 
     implementation(libs.spring.kafka)
 
+    implementation(libs.jjwt.api)
+    runtimeOnly(libs.jjwt.impl)
+    runtimeOnly(libs.jjwt.jackson)
+
     testImplementation(libs.bundles.testing)
     testImplementation(libs.spring.kafka.test)
     testRuntimeOnly(libs.junit.platform.launcher)

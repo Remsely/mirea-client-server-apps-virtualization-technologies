@@ -27,13 +27,13 @@ spring:
   profiles: graylog
 
 database:
-  host: auth-db
+  host: auth-db-postgresql
   port: "5432"
   name: auth_db
   username: postgres
 
 redis:
-  host: redis
+  host: redis-master
   port: "6379"
 
 jwt:
@@ -45,24 +45,24 @@ secrets:
   redisPassword: ""
 
 graylog:
-  host: graylog
+  host: graylog.monitoring.svc.cluster.local
   port: "12201"
 
 tracing:
   enabled: "true"
-  endpoint: http://jaeger:4318/v1/traces
+  endpoint: http://jaeger.monitoring.svc.cluster.local:4318/v1/traces
 
 probes:
   liveness:
     path: /actuator/health/liveness
-    initialDelaySeconds: 60
+    initialDelaySeconds: 90
     periodSeconds: 10
   readiness:
     path: /actuator/health/readiness
-    initialDelaySeconds: 30
+    initialDelaySeconds: 60
     periodSeconds: 5
   startup:
     path: /actuator/health
-    initialDelaySeconds: 10
-    periodSeconds: 5
+    initialDelaySeconds: 30
+    periodSeconds: 10
     failureThreshold: 30

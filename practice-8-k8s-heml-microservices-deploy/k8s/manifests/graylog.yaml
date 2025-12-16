@@ -23,9 +23,6 @@ spec:
           image: mongo:6.0
           ports:
             - containerPort: 27017
-          volumeMounts:
-            - name: mongodb-data
-              mountPath: /data/db
           resources:
             requests:
               cpu: "100m"
@@ -33,10 +30,6 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
-      volumes:
-        - name: mongodb-data
-          persistentVolumeClaim:
-            claimName: mongodb-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -48,17 +41,6 @@ spec:
       targetPort: 27017
   selector:
     app: mongodb
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mongodb-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
 ---
 # OpenSearch for Graylog
 apiVersion: apps/v1
@@ -80,7 +62,7 @@ spec:
       initContainers:
         - name: sysctl
           image: busybox
-          command: [ "sysctl", "-w", "vm.max_map_count=262144" ]
+          command: [ "sh", "-c", "sysctl -w vm.max_map_count=262144 || true" ]
           securityContext:
             privileged: true
       containers:
@@ -95,9 +77,8 @@ spec:
               value: "true"
             - name: OPENSEARCH_JAVA_OPTS
               value: "-Xms512m -Xmx512m"
-          volumeMounts:
-            - name: opensearch-data
-              mountPath: /usr/share/opensearch/data
+            - name: DISABLE_INSTALL_DEMO_CONFIG
+              value: "true"
           resources:
             requests:
               cpu: "100m"
@@ -105,10 +86,6 @@ spec:
             limits:
               cpu: "500m"
               memory: "1Gi"
-      volumes:
-        - name: opensearch-data
-          persistentVolumeClaim:
-            claimName: opensearch-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -121,18 +98,26 @@ spec:
   selector:
     app: opensearch
 ---
+# Graylog ConfigMap
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: ConfigMap
 metadata:
-  name: opensearch-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 2Gi
+  name: graylog-config
+data:
+  graylog.conf: |
+    is_leader = true
+    node_id_file = /usr/share/graylog/data/node-id
+    data_dir = /usr/share/graylog/data
+    password_secret = somepasswordpepper1234567890abcdef
+    root_password_sha2 = 8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+    http_bind_address = 0.0.0.0:9000
+    http_external_uri = http://localhost:9000/
+    elasticsearch_hosts = http://opensearch:9200
+    mongodb_uri = mongodb://mongodb:27017/graylog
+    message_journal_enabled = true
+    message_journal_dir = /usr/share/graylog/data/journal
 ---
-# Graylog
+# Graylog Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -149,6 +134,10 @@ spec:
       labels:
         app: graylog
     spec:
+      securityContext:
+        fsGroup: 1100
+        runAsUser: 1100
+        runAsGroup: 1100
       containers:
         - name: graylog
           image: graylog/graylog:6.0
@@ -160,10 +149,11 @@ spec:
               protocol: UDP
           env:
             - name: GRAYLOG_NODE_ID_FILE
-              value: "/usr/share/graylog/data/config/node-id"
+              value: "/usr/share/graylog/data/node-id"
+            - name: GRAYLOG_DATA_DIR
+              value: "/usr/share/graylog/data"
             - name: GRAYLOG_PASSWORD_SECRET
               value: "somepasswordpepper1234567890abcdef"
-            # admin password: admin (SHA256)
             - name: GRAYLOG_ROOT_PASSWORD_SHA2
               value: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
             - name: GRAYLOG_HTTP_BIND_ADDRESS
@@ -174,7 +164,12 @@ spec:
               value: "http://opensearch:9200"
             - name: GRAYLOG_MONGODB_URI
               value: "mongodb://mongodb:27017/graylog"
+            - name: GRAYLOG_MESSAGE_JOURNAL_ENABLED
+              value: "true"
           volumeMounts:
+            - name: graylog-config
+              mountPath: /usr/share/graylog/data/config/graylog.conf
+              subPath: graylog.conf
             - name: graylog-data
               mountPath: /usr/share/graylog/data
           resources:
@@ -188,7 +183,7 @@ spec:
             httpGet:
               path: /api/system/lbstatus
               port: 9000
-            initialDelaySeconds: 60
+            initialDelaySeconds: 90
             periodSeconds: 10
           livenessProbe:
             httpGet:
@@ -197,9 +192,11 @@ spec:
             initialDelaySeconds: 120
             periodSeconds: 30
       volumes:
+        - name: graylog-config
+          configMap:
+            name: graylog-config
         - name: graylog-data
-          persistentVolumeClaim:
-            claimName: graylog-pvc
+          emptyDir: { }
 ---
 apiVersion: v1
 kind: Service
@@ -219,14 +216,3 @@ spec:
       nodePort: 31201
   selector:
     app: graylog
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: graylog-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi

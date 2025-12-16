@@ -36,6 +36,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-secret
                   key: DB_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: JWT_SECRET
 
           # Resource requests and limits
           resources:

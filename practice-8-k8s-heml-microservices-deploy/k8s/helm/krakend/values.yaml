@@ -26,7 +26,6 @@ krakend:
   timeout: "3000ms"
   cacheTtl: "300s"
 
-# JWT configuration (same secret as auth-service)
 jwt:
   secret: "my-super-secret-key-for-jwt-token-generation-min-256-bits"
-  algorithm: "HS256"
+  algorithm: "HS384"

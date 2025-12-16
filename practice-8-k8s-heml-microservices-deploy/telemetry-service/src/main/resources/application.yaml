@@ -50,8 +50,10 @@ management:
     tracing:
       endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
 
+jwt:
+  secret: ${JWT_SECRET:my-super-secret-key-for-jwt-token-generation-min-256-bits}
+
 logging:
   level:
     root: INFO
     edu.mirea.remsely: DEBUG
-
