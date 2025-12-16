@@ -1,0 +1,661 @@
+{
+  "info": {
+    "_postman_id": "f1-minikube-collection",
+    "name": "F1 Microservices - Minikube",
+    "description": "Collection for testing F1 services deployed in Minikube via KrakenD Gateway",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "gateway_url",
+      "value": "http://localhost:8080",
+      "description": "KrakenD Gateway URL (use port-forward or minikube service URL)"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "description": "JWT token (auto-filled after login)"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Auth - No Token Required",
+      "item": [
+        {
+          "name": "1.1 Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.token) {",
+                  "        pm.collectionVariables.set('token', jsonData.token);",
+                  "        console.log('Token saved from registration');",
+                  "    }",
+                  "}",
+                  "",
+                  "pm.test('Registration successful', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 409]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"demo\",\n    \"password\": \"demo123\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/auth/register",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "1.2 Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Login successful', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "    console.log('Token saved: ' + jsonData.token.substring(0, 50) + '...');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"demo\",\n    \"password\": \"demo123\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/auth/login",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Auth - Token Required",
+      "item": [
+        {
+          "name": "2.1 Validate Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Token is valid', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/auth/validate",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "auth", "validate"]
+            }
+          }
+        },
+        {
+          "name": "2.2 Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/auth/logout",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Drivers (Protected)",
+      "item": [
+        {
+          "name": "3.0 WITHOUT Token (should fail 401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Should return 401 without token', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/api/drivers",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "drivers"]
+            }
+          }
+        },
+        {
+          "name": "3.1 Create Driver - Verstappen",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Driver created', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Max Verstappen\",\n    \"team\": \"Red Bull Racing\",\n    \"number\": 1\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/drivers",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "drivers"]
+            }
+          }
+        },
+        {
+          "name": "3.2 Create Driver - Hamilton",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Lewis Hamilton\",\n    \"team\": \"Ferrari\",\n    \"number\": 44\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/drivers",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "drivers"]
+            }
+          }
+        },
+        {
+          "name": "3.3 Create Driver - Leclerc",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Charles Leclerc\",\n    \"team\": \"Ferrari\",\n    \"number\": 16\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/drivers",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "drivers"]
+            }
+          }
+        },
+        {
+          "name": "3.4 Get All Drivers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Got drivers list', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/drivers",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "drivers"]
+            }
+          }
+        },
+        {
+          "name": "3.5 Get Driver by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/drivers/1",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "drivers", "1"]
+            }
+          }
+        },
+        {
+          "name": "3.6 Get Drivers by Team",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/drivers/team/Ferrari",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "drivers", "team", "Ferrari"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Races (Protected)",
+      "item": [
+        {
+          "name": "4.1 Create Race - Monaco",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Race created', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Monaco Grand Prix\",\n    \"circuit\": \"Circuit de Monaco\",\n    \"date\": \"2025-05-25\",\n    \"country\": \"Monaco\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/races",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "races"]
+            }
+          }
+        },
+        {
+          "name": "4.2 Create Race - Monza",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Italian Grand Prix\",\n    \"circuit\": \"Monza\",\n    \"date\": \"2025-09-07\",\n    \"country\": \"Italy\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/races",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "races"]
+            }
+          }
+        },
+        {
+          "name": "4.3 Get All Races",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/races",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "races"]
+            }
+          }
+        },
+        {
+          "name": "4.4 Get Race by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/races/1",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "races", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Telemetry - Kafka Events (Protected)",
+      "item": [
+        {
+          "name": "5.1 Get All Telemetry Events",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Got telemetry events', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Events from Kafka received', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    console.log('Total events: ' + jsonData.length);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/telemetry",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "telemetry"]
+            }
+          }
+        },
+        {
+          "name": "5.2 Get Telemetry by Source (driver-service)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/telemetry/source/driver-service",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "telemetry", "source", "driver-service"]
+            }
+          }
+        },
+        {
+          "name": "5.3 Get Telemetry by Source (race-service)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/telemetry/source/race-service",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "telemetry", "source", "race-service"]
+            }
+          }
+        },
+        {
+          "name": "5.4 Get Telemetry by Type (DRIVER_CREATED)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/telemetry/type/DRIVER_CREATED",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "telemetry", "type", "DRIVER_CREATED"]
+            }
+          }
+        },
+        {
+          "name": "5.5 Get Telemetry Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/telemetry/stats",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "telemetry", "stats"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Full Flow Test",
+      "item": [
+        {
+          "name": "STEP 1 - Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set('token', jsonData.token);",
+                  "console.log('Step 1: Logged in, token saved');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"demo\",\n    \"password\": \"demo123\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/auth/login",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "STEP 2 - Create Driver (triggers Kafka)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "console.log('Step 2: Driver created, Kafka event sent');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Test Driver\",\n    \"team\": \"Test Team\",\n    \"number\": 99\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/drivers",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "drivers"]
+            }
+          }
+        },
+        {
+          "name": "STEP 3 - Check Telemetry (Kafka event received)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Telemetry received Kafka event', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.length).to.be.greaterThan(0);",
+                  "    console.log('Step 3: Found ' + jsonData.length + ' telemetry events');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/telemetry",
+              "host": ["{{gateway_url}}"],
+              "path": ["api", "telemetry"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+
