@@ -24,12 +24,10 @@ spec:
               containerPort: {{ .Values.service.port }}
               protocol: TCP
 
-          # Environment variables from ConfigMap
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-config
 
-          # Environment variables from Secret
           env:
             - name: DB_PASSWORD
               valueFrom:
@@ -42,7 +40,6 @@ spec:
                   name: {{ .Release.Name }}-secret
                   key: JWT_SECRET
 
-          # Resource requests and limits
           resources:
             requests:
               cpu: {{ .Values.resources.requests.cpu }}
@@ -51,7 +48,6 @@ spec:
               cpu: {{ .Values.resources.limits.cpu }}
               memory: {{ .Values.resources.limits.memory }}
 
-          # Startup probe
           startupProbe:
             httpGet:
               path: {{ .Values.probes.startup.path }}
@@ -60,7 +56,6 @@ spec:
             periodSeconds: {{ .Values.probes.startup.periodSeconds }}
             failureThreshold: {{ .Values.probes.startup.failureThreshold }}
 
-          # Liveness probe
           livenessProbe:
             httpGet:
               path: {{ .Values.probes.liveness.path }}
@@ -68,7 +63,6 @@ spec:
             initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
 
-          # Readiness probe
           readinessProbe:
             httpGet:
               path: {{ .Values.probes.readiness.path }}

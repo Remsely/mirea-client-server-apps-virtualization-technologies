@@ -1,5 +1,4 @@
-# Jaeger All-in-One Deployment
-# Apply: kubectl apply -f jaeger.yaml -n monitoring
+# kubectl apply -f jaeger.yaml -n monitoring
 ---
 apiVersion: apps/v1
 kind: Deployment

@@ -23,7 +23,6 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-
           volumeMounts:
             - name: config
               mountPath: /etc/krakend/krakend.json
@@ -40,14 +39,12 @@ spec:
             limits:
               cpu: {{ .Values.resources.limits.cpu }}
               memory: {{ .Values.resources.limits.memory }}
-
           livenessProbe:
             httpGet:
               path: /__health
               port: http
             initialDelaySeconds: 10
             periodSeconds: 10
-
           readinessProbe:
             httpGet:
               path: /__health

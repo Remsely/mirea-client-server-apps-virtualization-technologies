@@ -1,5 +1,4 @@
-# Graylog Stack (MongoDB + OpenSearch + Graylog)
-# Apply: kubectl apply -f graylog.yaml -n monitoring
+#  kubectl apply -f graylog.yaml -n monitoring
 ---
 # MongoDB for Graylog
 apiVersion: apps/v1

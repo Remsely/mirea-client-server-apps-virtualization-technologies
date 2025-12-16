@@ -35,4 +35,3 @@ service:
   type: ClusterIP
   ports:
     redis: 6379
-

@@ -14,7 +14,6 @@ spec:
       labels:
         app: {{ .Release.Name }}
     spec:
-      # Restart policy (Always is default for Deployments)
       restartPolicy: Always
       containers:
         - name: {{ .Release.Name }}
@@ -24,13 +23,9 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-
-          # Environment variables from ConfigMap
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-config
-
-          # Environment variables from Secret
           env:
             - name: DB_PASSWORD
               valueFrom:
@@ -47,8 +42,6 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-secret
                   key: REDIS_PASSWORD
-
-          # Resource requests and limits
           resources:
             requests:
               cpu: {{ .Values.resources.requests.cpu }}
@@ -56,8 +49,6 @@ spec:
             limits:
               cpu: {{ .Values.resources.limits.cpu }}
               memory: {{ .Values.resources.limits.memory }}
-
-          # Startup probe - gives time for JVM to start
           startupProbe:
             httpGet:
               path: {{ .Values.probes.startup.path }}
@@ -65,16 +56,12 @@ spec:
             initialDelaySeconds: {{ .Values.probes.startup.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.startup.periodSeconds }}
             failureThreshold: {{ .Values.probes.startup.failureThreshold }}
-
-          # Liveness probe - restarts container if unhealthy
           livenessProbe:
             httpGet:
               path: {{ .Values.probes.liveness.path }}
               port: http
             initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
-
-          # Readiness probe - removes from service if not ready
           readinessProbe:
             httpGet:
               path: {{ .Values.probes.readiness.path }}
