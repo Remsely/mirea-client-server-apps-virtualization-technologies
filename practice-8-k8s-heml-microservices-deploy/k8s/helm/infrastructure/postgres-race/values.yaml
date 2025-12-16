@@ -1,4 +1,4 @@
-# Install: helm install race-db bitnami/postgresql -f values.yaml -n f1-app
+# helm install race-db bitnami/postgresql -f values.yaml -n f1-app
 
 auth:
   database: race_db

@@ -1,4 +1,4 @@
-# Install: helm install telemetry-db bitnami/postgresql -f values.yaml -n f1-app
+# helm install telemetry-db bitnami/postgresql -f values.yaml -n f1-app
 
 auth:
   database: telemetry_db

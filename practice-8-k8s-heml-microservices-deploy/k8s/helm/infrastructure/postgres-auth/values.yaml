@@ -1,4 +1,4 @@
-# Install: helm install auth-db bitnami/postgresql -f values.yaml -n f1-app
+# helm install auth-db bitnami/postgresql -f values.yaml -n f1-app
 
 auth:
   database: auth_db

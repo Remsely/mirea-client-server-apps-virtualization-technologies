@@ -1,4 +1,4 @@
-# Install: helm install redis bitnami/redis -f values.yaml -n f1-app
+# helm install redis bitnami/redis -f values.yaml -n f1-app
 
 architecture: standalone
 

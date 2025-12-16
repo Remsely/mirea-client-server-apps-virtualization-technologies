@@ -1,7 +1,5 @@
-# Prometheus + Grafana Stack (kube-prometheus-stack)
-# Install: helm install monitoring prometheus-community/kube-prometheus-stack -f values.yaml -n monitoring --create-namespace
+# helm install monitoring prometheus-community/kube-prometheus-stack -f values.yaml -n monitoring --create-namespace
 
-# Grafana settings
 grafana:
   enabled: true
   adminUser: admin
@@ -11,11 +9,9 @@ grafana:
     type: NodePort
     nodePort: 30300
 
-  # Default dashboards
   defaultDashboardsEnabled: true
   defaultDashboardsTimezone: utc
 
-# Prometheus settings
 prometheus:
   enabled: true
 
@@ -24,7 +20,6 @@ prometheus:
     nodePort: 30090
 
   prometheusSpec:
-    # Resource limits
     resources:
       requests:
         cpu: "100m"
@@ -32,13 +27,9 @@ prometheus:
       limits:
         cpu: "500m"
         memory: "512Mi"
-
-    # Retention
     retention: 7d
 
-    # Scrape configs for custom services
     additionalScrapeConfigs:
-      # Spring Boot Actuator endpoints (auth-service)
       - job_name: 'auth-service'
         metrics_path: '/actuator/prometheus'
         scrape_interval: 15s
@@ -47,7 +38,6 @@ prometheus:
             labels:
               application: 'auth-service'
 
-      # Spring Boot Actuator endpoints (race-service)
       - job_name: 'race-service'
         metrics_path: '/actuator/prometheus'
         scrape_interval: 15s
@@ -56,7 +46,6 @@ prometheus:
             labels:
               application: 'race-service'
 
-      # Spring Boot Actuator endpoints (telemetry-service)
       - job_name: 'telemetry-service'
         metrics_path: '/actuator/prometheus'
         scrape_interval: 15s
@@ -65,7 +54,6 @@ prometheus:
             labels:
               application: 'telemetry-service'
 
-      # PostgreSQL exporters
       - job_name: 'postgres-auth-db'
         scrape_interval: 15s
         static_configs:
@@ -87,7 +75,6 @@ prometheus:
             labels:
               database: 'telemetry_db'
 
-      # Redis exporter
       - job_name: 'redis'
         scrape_interval: 15s
         static_configs:
@@ -95,14 +82,11 @@ prometheus:
             labels:
               application: 'redis'
 
-# Alertmanager - disabled for demo
 alertmanager:
   enabled: false
 
-# Node exporter - node metrics
 nodeExporter:
   enabled: true
 
-# Kube-state-metrics - K8s objects metrics
 kubeStateMetrics:
   enabled: true
